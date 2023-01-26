@@ -1,6 +1,6 @@
 from psychopy import core, visual
 from datetime import datetime
-from .sampler import sample_orientation
+from .sampler import sample_orientation, sample_stimuli
 import os, json, random, numpy as np
 
 # for keyboard IO
@@ -17,35 +17,6 @@ except Exception as exc:
 window_backend = 'glfw'
 from psychopy.hardware import joystick
 joystick.backend = window_backend
-
-# simple class for experiment data
-class DataRecord:
-    def __init__(self):
-        self.surround = []
-        self.stimulus = []
-        self.response = []
-        self.react_time = []
-
-    def add_surround(self, surround):
-        self.surround.append(surround)
-
-    def add_stimulus(self, stim):
-        self.stimulus.append(stim)
-
-    def add_response(self, resp):
-        self.response.append(resp)
-
-    def add_react_time(self, time):
-        self.react_time.append(time)
-
-    def to_numpy(self):
-        n_trial = len(self.stimulus)
-        data_mtx = np.zeros([2, n_trial])
-
-        data_mtx[0, :] = self.surround
-        data_mtx[1, :] = self.stimulus
-
-        return data_mtx
 
 class OrientEncode:
 
@@ -122,10 +93,6 @@ class OrientEncode:
 
         # initialize stimulus
         self.target = visual.GratingStim(self.win, sf=1.0, size=10.0, mask='raisedCos', maskParams={'fringeWidth':0.25}, contrast=0.10)
-        self.noise = visual.NoiseStim(self.win, units='pix', mask='raisedCos', size=1024, contrast=0.10, noiseClip=3.0,
-                                    noiseType='Filtered', texRes=1024, noiseElementSize=4, noiseFractalPower=0,
-                                    noiseFilterLower=15.0/1024.0, noiseFilterUpper=25.0/1024.0, noiseFilterOrder=3.0)        
-        self.surround = visual.GratingStim(self.win, sf=1.0, size=18.0, mask='raisedCos', contrast=0.10)        
 
         self.fixation = visual.GratingStim(self.win, color=0.5, colorSpace='rgb', tex=None, mask='raisedCos', size=0.25)
         self.center = visual.GratingStim(self.win, sf=0.0, size=2.0, mask='raisedCos', maskParams={'fringeWidth':0.15}, contrast=0.0)
@@ -145,27 +112,37 @@ class OrientEncode:
         return
 
     def start(self, wait_on_key=True):
-        # get the stimulus sequence
-        self.run_idx = self.sub_record['Ses_Counter']
-        self.cond_idx = self.sub_record['Cond_List'][self.run_idx]
-       
-        all_stims = np.reshape(np.array(self.sub_record['Stim_Seq']), (self.N_COND, -1))
-        stim_seq = np.reshape(all_stims[self.cond_idx, :], (self.N_SESSION, self.n_trial))
-        self.stim_seq = stim_seq[self.sub_record['Cond_Counter'][self.cond_idx], :]
+        self.n_trial = 200
+        self.context = []
 
-        self.surround.ori = self.SURROUND_VAL[self.cond_idx]
-
-        # determine condition and sequence
-        print('Acquisition Total Run #%d' % self.run_idx)
-        print('Surround Cond %d, Run #%d' % (self.cond_idx, 
-            self.sub_record['Cond_Counter'][self.cond_idx]))
+        # generate sequence of context
+        hazard = 0.04
+        cond = True
+        for _ in range(self.n_trial):
+            if np.random.random() <= hazard:
+                cond = not cond
+            self.context.append(cond)
+        self.context = np.array(self.context).astype(np.int)
         
-        self.sub_record['Ses_Counter'] += 1    
-        self.sub_record['Cond_Counter'][self.cond_idx] += 1
+        # generate stimulus sequence for each context
+        n_ct0 = np.sum(self.context == 0)
+        n_ct1 = np.sum(self.context == 1)
+        stim_ct0 = sample_stimuli(n_ct0, mode='cardinal')
+        stim_ct1 = sample_stimuli(n_ct1, mode='oblique')
+        
+        self.stimulus_array = [stim_ct0, stim_ct1]
+        self.counter_array = [0, 0]
 
         # set up for the first trial
-        self.target.ori = self.stim_seq[0]
+        ctx_idx = self.context[0]
+        self.target.ori = self.stimulus_array[ctx_idx][self.counter_array[ctx_idx]]
+        self.counter_array[ctx_idx] += 1
         self.target.phase = np.random.rand()
+
+        if ctx_idx == 0:
+            self.fixation.color = [1, 0, 0]
+        else:
+            self.fixation.color = [0, 1, 0]        
 
         # wait for confirmation
         if wait_on_key:
@@ -182,7 +159,7 @@ class OrientEncode:
 
         # initial blank period
         self.clock.reset()
-        while self.clock.getTime () <= self.blank:
+        while self.clock.getTime() <= self.blank:
             self._draw_blank()
 
         for idx in range(self.n_trial):
@@ -192,16 +169,7 @@ class OrientEncode:
                 # 2 hz contrast modulation
                 t = self.clock.getTime()
                 crst = 0.05 * np.cos(4.0 * np.pi * t + np.pi) + 0.05
-
-                if self.cond_idx == 0:
-                    # draw noise surround
-                    self.noise.contrast = crst
-                    self.noise.draw()
-                else:
-                    # draw oriented surround
-                    self.surround.contrast = crst
-                    self.surround.draw()
-                
+                                
                 self.target.contrast = crst
                 self.target.draw()
                 self.center.draw()
@@ -216,15 +184,15 @@ class OrientEncode:
 
             # setup stim condition for next trial
             if idx < self.n_trial - 1:
-                self.target.ori = self.stim_seq[idx + 1]
-                self.target.phase = np.random.rand()
+                ctx_idx = self.context[idx + 1]                
+                self.target.ori = self.stimulus_array[ctx_idx][self.counter_array[ctx_idx]]
+                self.counter_array[ctx_idx] += 1
 
-                # update surround
-                if self.cond_idx == 0:
-                    self.noise.updateNoise()
+                if ctx_idx == 0:
+                    self.fixation.color = [1, 0, 0]
                 else:
-                    self.surround.phase = np.random.rand()
-
+                    self.fixation.color = [0, 1, 0]
+                
             # blank period
             while self.clock.getTime() <= self.delay:
                 self._draw_blank()

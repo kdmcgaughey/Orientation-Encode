@@ -32,9 +32,9 @@ def sample_stimuli(n_sample, mode='uniform'):
     delta = 0.1
     theta = np.arange(0, 180, delta)
     if mode == 'cardinal':
-        prob = 2 - 1.25 * np.abs(np.sin(2 * theta / 180 * np.pi))
+        prob = 2 - 2 * np.abs(np.sin(2 * theta / 180 * np.pi))
     elif mode == 'oblique':
-        prob = 2 - 1.25 * np.abs(np.cos(2 * theta / 180 * np.pi))
+        prob = 2 - 2 * np.abs(np.cos(2 * theta / 180 * np.pi))
     else:
         raise ValueError('sample mode is invalid')
 
