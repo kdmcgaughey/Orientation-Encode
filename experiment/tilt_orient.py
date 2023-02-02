@@ -69,7 +69,7 @@ class OrientEncode:
         return
 
     def start(self, wait_on_key=True):
-        self.n_trial = 10
+        self.n_trial = 250
         self.context = []
         self.response = []
         self.resp_time = []
