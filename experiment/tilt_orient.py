@@ -23,23 +23,16 @@ class OrientEncode:
     # default parameters for the experiment
     DEFAULT_DUR = 0.5
     DEFAULT_BLANK = 4.0
-    DEFAULT_DELAY = 2.0
-    DEFAULT_ISI = 1.5
+    DEFAULT_DELAY = 1.5
+    DEFAULT_ISI = 0.5
     DEFAULT_LEN = 5.0
-
-    # conditions of the experiment
-    N_COND = 3
-    N_SESSION = 16
-    N_TRIAL = 20
-    SURROUND_VAL = [-1, 30.0, 135.0]
 
     def __init__(self, sub_val):
         # subject name/id
         self.sub_val = sub_val
         self.time_stmp = datetime.now().strftime("%d_%m_%Y_%H_%M_")
 
-        # set parameter for the experiment
-        self.n_trial = self.N_TRIAL
+        # set parameter for the experiment        
         self.line_len = self.DEFAULT_LEN
         self.stim_dur = self.DEFAULT_DUR
         self.blank = self.DEFAULT_BLANK
@@ -48,41 +41,10 @@ class OrientEncode:
 
         # create condition sequence / record file for each subject
         self.data_dir = os.path.join('.', 'Behavior', self.sub_val)
-        self.record_path = os.path.join(self.data_dir, self.sub_val + '.json')
 
-        if os.path.exists(self.record_path):
-            with open(self.record_path, 'r') as file_handle:
-                self.sub_record = json.load(file_handle)
-        else:
+        if not os.path.exists(self.data_dir):
             os.mkdir(self.data_dir)
 
-            # sample stimulus to present
-            # using stratified sampling over [0, 1] to ensure uniformity
-            stim_seq = []
-            for _ in range(self.N_COND):
-                edges = np.linspace(0, 1, self.n_trial * self.N_SESSION + 1)
-                samples = np.array([np.random.uniform(edges[idx], edges[idx+1])
-                                for idx in range(self.n_trial * self.N_SESSION)]) * 180.0
-                np.random.shuffle(samples)
-                stim_seq.extend(samples.astype(np.int).tolist())
-
-            # sequence of conditions
-            cond = []
-            for _ in range(self.N_SESSION):
-                cond_idx = [0, 1, 2]
-                random.shuffle(cond_idx)
-                cond.extend(cond_idx)
-
-            # create subject record and save initial json file
-            self.sub_record = {'Cond_List' : cond,
-                               'Ses_Counter' : 0,
-                               'Cond_Counter' : [0, 0, 0],
-                               'Stim_Seq' : stim_seq,
-                               'Resp_Seq' : []}
-
-            self._save_json()
-            print('create subject file at ' + self.record_path)
-        
         # will be used for recording response
         self.resp_flag = True
         self.increment = 0
@@ -100,11 +62,6 @@ class OrientEncode:
         
         return
 
-    def _save_json(self):
-        with open(self.record_path, 'w+') as record:
-            record.write(json.dumps(self.sub_record, indent=2))
-        return
-
     def _draw_blank(self):
         self.fixation.draw()
         self.win.flip()
@@ -112,8 +69,10 @@ class OrientEncode:
         return
 
     def start(self, wait_on_key=True):
-        self.n_trial = 200
+        self.n_trial = 10
         self.context = []
+        self.response = []
+        self.resp_time = []
 
         # generate sequence of context
         hazard = 0.04
@@ -186,20 +145,26 @@ class OrientEncode:
             if idx < self.n_trial - 1:
                 ctx_idx = self.context[idx + 1]                
                 self.target.ori = self.stimulus_array[ctx_idx][self.counter_array[ctx_idx]]
-                self.counter_array[ctx_idx] += 1
-
-                if ctx_idx == 0:
-                    self.fixation.color = [1, 0, 0]
-                else:
-                    self.fixation.color = [0, 1, 0]
+                self.counter_array[ctx_idx] += 1            
                 
             # blank period
             while self.clock.getTime() <= self.delay:
                 self._draw_blank()
 
             # response period
+            self.clock.reset()
             response = self.io_response()
-            self.sub_record['Resp_Seq'].append(int(response))
+            trial_rt = self.clock.getTime()
+
+            # record 
+            self.resp_time.append(trial_rt)
+            self.response.append(int(response))
+
+            # change color of fixation dot
+            if ctx_idx == 0:
+                self.fixation.color = [1, 0, 0]
+            else:
+                self.fixation.color = [0, 1, 0]        
 
             # ISI
             self.clock.reset()
@@ -213,7 +178,15 @@ class OrientEncode:
 
     def save_data(self):
         # write subject record
-        self._save_json()
+        file_name = self.sub_val + '_' + self.time_stmp + '.npy'
+        file_path = os.path.join(self.data_dir, file_name)
+        
+        save_vars = [self.context, self.response, self.resp_time,
+                    self.stimulus_array[0], self.stimulus_array[1]]
+
+        with open(file_path, 'wb') as fl:
+            for var in save_vars:
+                np.save(fl, np.array(var))
 
         return
 
