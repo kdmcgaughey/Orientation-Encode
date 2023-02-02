@@ -23,7 +23,8 @@ class OrientEncode:
     # default parameters for the experiment
     DEFAULT_DUR = 0.5
     DEFAULT_BLANK = 4.0
-    DEFAULT_DELAY = 1.5
+    DEFAULT_MASK = 0.25
+    DEFAULT_DELAY = 1.25    
     DEFAULT_ISI = 0.5
     DEFAULT_LEN = 5.0
 
@@ -35,6 +36,7 @@ class OrientEncode:
         # set parameter for the experiment        
         self.line_len = self.DEFAULT_LEN
         self.stim_dur = self.DEFAULT_DUR
+        self.mask_dur = self.DEFAULT_MASK
         self.blank = self.DEFAULT_BLANK
         self.delay = self.DEFAULT_DELAY
         self.isi = self.DEFAULT_ISI
@@ -55,6 +57,9 @@ class OrientEncode:
 
         # initialize stimulus
         self.target = visual.GratingStim(self.win, sf=1.0, size=10.0, mask='raisedCos', maskParams={'fringeWidth':0.25}, contrast=0.10)
+        self.noise = visual.NoiseStim(self.win, units='pix', mask='raisedCos', size=568, contrast=0.12, noiseClip=3.0,
+                            noiseType='Filtered', texRes=568, noiseElementSize=4, noiseFractalPower=0,
+                            noiseFilterLower=7.5/568.0, noiseFilterUpper=12.5/568.0, noiseFilterOrder=3.0)
 
         self.fixation = visual.GratingStim(self.win, color=0.5, colorSpace='rgb', tex=None, mask='raisedCos', size=0.25)
         self.center = visual.GratingStim(self.win, sf=0.0, size=2.0, mask='raisedCos', maskParams={'fringeWidth':0.15}, contrast=0.0)
@@ -136,6 +141,16 @@ class OrientEncode:
                 # draw fixation dot
                 self.fixation.draw()
                 self.win.flip()
+
+            # draw mask
+            self.clock.reset()           
+            while self.clock.getTime() <= self.mask_dur:
+                self.noise.draw()
+                self.center.draw()
+
+                # draw fixation dot
+                self.fixation.draw()
+                self.win.flip()
           
             # blank screen for delay duration
             # also set up the next stim
@@ -145,7 +160,8 @@ class OrientEncode:
             if idx < self.n_trial - 1:
                 ctx_idx = self.context[idx + 1]                
                 self.target.ori = self.stimulus_array[ctx_idx][self.counter_array[ctx_idx]]
-                self.counter_array[ctx_idx] += 1            
+                self.counter_array[ctx_idx] += 1
+                self.noise.updateNoise()        
                 
             # blank period
             while self.clock.getTime() <= self.delay:
