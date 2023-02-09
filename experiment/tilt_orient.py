@@ -57,9 +57,9 @@ class OrientEncode:
 
         # initialize stimulus
         self.target = visual.GratingStim(self.win, sf=1.0, size=10.0, mask='raisedCos', maskParams={'fringeWidth':0.25}, contrast=0.10)
-        self.noise = visual.NoiseStim(self.win, units='pix', mask='raisedCos', size=568, contrast=0.12, noiseClip=3.0,
-                            noiseType='Filtered', texRes=568, noiseElementSize=4, noiseFractalPower=0,
-                            noiseFilterLower=7.5/568.0, noiseFilterUpper=12.5/568.0, noiseFilterOrder=3.0)
+        self.noise = visual.NoiseStim(self.win, units='pix', mask='raisedCos', size=512, contrast=0.12, noiseClip=3.0,
+                            noiseType='Filtered', texRes=512, noiseElementSize=4, noiseFractalPower=0,
+                            noiseFilterLower=7.5/512.0, noiseFilterUpper=12.5/512.0, noiseFilterOrder=3.0)
 
         self.fixation = visual.GratingStim(self.win, color=0.5, colorSpace='rgb', tex=None, mask='raisedCos', size=0.25)
         self.center = visual.GratingStim(self.win, sf=0.0, size=2.0, mask='raisedCos', maskParams={'fringeWidth':0.15}, contrast=0.0)
