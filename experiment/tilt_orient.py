@@ -26,7 +26,7 @@ class OrientEncode:
     DEFAULT_MASK = 0.25
     DEFAULT_DELAY = 1.25    
     DEFAULT_ISI = 0.5
-    DEFAULT_LEN = 5.0
+    DEFAULT_LEN = 4.0
 
     def __init__(self, sub_val):
         # subject name/id
