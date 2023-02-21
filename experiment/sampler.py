@@ -36,10 +36,10 @@ def sample_stimuli(n_sample, mode='uniform'):
         prob = 2 - 1.8 * np.abs(np.sin(2 * theta / 180 * np.pi))
     elif mode == 'oblique':
         prob = 2 - 1.8 * np.abs(np.cos(2 * theta / 180 * np.pi))
-    elif mode == 'horizontal':        
-        prob = vonmises.pdf(theta / 180 * 2 * np.pi, kappa=0.001, loc=0)
+    elif mode == 'horizontal':
+        prob = vonmises.pdf(theta / 180 * 2 * np.pi, kappa=0.5, loc=0)
     elif mode == 'vertical':
-        prob = vonmises.pdf(theta / 180 * 2 * np.pi, kappa=0.001, loc=np.pi)
+        prob = vonmises.pdf(theta / 180 * 2 * np.pi, kappa=0.5, loc=np.pi)
     else:
         raise ValueError('sample mode is invalid')
 
