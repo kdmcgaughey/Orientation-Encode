@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.random import uniform
+from scipy.stats import vonmises
 
 def sample_orientation(n_sample, uniform=True):
     # sample from p(theta) = 1/Z * (2 - |sin(theta)|)
@@ -35,6 +36,10 @@ def sample_stimuli(n_sample, mode='uniform'):
         prob = 2 - 1.8 * np.abs(np.sin(2 * theta / 180 * np.pi))
     elif mode == 'oblique':
         prob = 2 - 1.8 * np.abs(np.cos(2 * theta / 180 * np.pi))
+    elif mode == 'horizontal':        
+        prob = vonmises.pdf(theta / 180 * 2 * np.pi, kappa=0.001, loc=0)
+    elif mode == 'vertical':
+        prob = vonmises.pdf(theta / 180 * 2 * np.pi, kappa=0.001, loc=np.pi)
     else:
         raise ValueError('sample mode is invalid')
 

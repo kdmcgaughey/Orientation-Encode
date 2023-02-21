@@ -9,7 +9,7 @@ else:
     sub_val = str(sys.argv[1])
 
 # start running the experiment
-exp = OrientEncodeButtons(sub_val)
+exp = OrientEncodeKeyboard(sub_val)
 exp.start(wait_on_key=True)
 exp.run()
 exp.save_data()

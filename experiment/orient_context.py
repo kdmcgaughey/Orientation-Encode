@@ -91,8 +91,8 @@ class OrientEncode:
         # generate stimulus sequence for each context
         n_ct0 = np.sum(self.context == 0)
         n_ct1 = np.sum(self.context == 1)
-        stim_ct0 = sample_stimuli(n_ct0, mode='cardinal')
-        stim_ct1 = sample_stimuli(n_ct1, mode='oblique')
+        stim_ct0 = sample_stimuli(n_ct0, mode='horizontal')
+        stim_ct1 = sample_stimuli(n_ct1, mode='vertical')
         
         self.stimulus_array = [stim_ct0, stim_ct1]
         self.counter_array = [0, 0]
