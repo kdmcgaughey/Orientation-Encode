@@ -53,7 +53,7 @@ class OrientEncode:
         
         # initialize window, message
         # monitor = 'rm_413' for psychophysics and 'sc_3t' for imaging session
-        self.win = visual.Window(size=(1920, 1080), fullscr=True, allowGUI=True, screen=1, monitor='rm_413', units='deg', winType=window_backend)
+        self.win = visual.Window(size=(1920, 1080), fullscr=True, allowGUI=True, screen=1, monitor='rm_413', bb, winType=window_backend)
 
         # initialize stimulus
         self.target = visual.GratingStim(self.win, sf=1.0, size=10.0, mask='raisedCos', maskParams={'fringeWidth':0.25}, contrast=0.10)
