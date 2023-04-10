@@ -1,6 +1,7 @@
 # Import necessary modules
 from psychopy import visual, event
 import numpy as np
+import keyboard
 
 # Create a window
 window_backend = 'glfw'
@@ -10,37 +11,46 @@ win = visual.Window([1920, 1080], fullscr=True, allowGUI=True, units='deg',
 # Joystick setup
 from psychopy.hardware import joystick
 joystick.backend = window_backend
-joy = joystick.Joystick(0)
+# joy = joystick.Joystick(0)
 
 # Define Gabor stimulus parameters
 sf = 5.0 # Spatial frequency
 contrast = 1.0 # Contrast
 phase = 0.0 # Phase
 size = 200 # Size in pixels
-num_frames = 10 # Stimulus duration in frames
+num_frames = 2 # Stimulus duration in frames
 
 # Initialize orientation
 ori = 0.0
 
 # Create Gabor stimulus
-gabor = visual.GratingStim(win, sf=0.75, size=10.0, mask='raisedCos', maskParams={'fringeWidth':0.25}, contrast=0.25)
-prob = visual.Line(win, start=(0.0, -5), end=(0.0, 5), lineWidth=10.0, lineColor='black', size=1, contrast=0.80)
+gabor = visual.GratingStim(win, sf=sf, size=7.5, mask='raisedCos', maskParams={'fringeWidth':0.25}, contrast=0.25)
+prob = visual.Line(win, start=(0.0, -3.5), end=(0.0, 3.5), lineWidth=10.0, lineColor='black', size=1, contrast=0.80)
+
+# define callback function for keyboard event
+prob_ornt = 0
+prob.setOri(prob_ornt)
+def left_callback(event):
+    global prob_ornt
+    prob_ornt -= 2.0
+
+def right_callback(event):
+    global prob_ornt
+    prob_ornt += 2.0
+
+# key binding for recording response
+key_bind = {'a':left_callback, 'l':right_callback}
+for key, callback in key_bind.items():
+    keyboard.on_press_key(key, callback)
 
 # Present sequence of Gabor stimuli
 for trial in range(2000): # Present 200 trials
     # Random walk for orientation
 
-    for i in range(10):    
+    for i in range(num_frames):    
         # Draw stimulus and flip window
-        gabor.draw()        
-
-        # joystick response
-        x = joy.getX()
-        y = joy.getY()
-        if np.sqrt(x ** 2 + y ** 2) >= 1:
-            resp = (np.arctan(y / x) / np.pi * 180.0 - 90) % 180
-            prob.setOri(resp)
-
+        gabor.draw()
+        prob.setOri(prob_ornt)
         prob.draw()
         win.flip()
 
