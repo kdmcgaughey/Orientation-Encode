@@ -46,6 +46,8 @@ for key, callback in key_bind.items():
     keyboard.on_press_key(key, callback)
 
 # Present sequence of Gabor stimuli
+speed = 0
+counter = 1
 for trial in range(2000): # Present 200 trials
     # Random walk for orientation
 
@@ -55,10 +57,10 @@ for trial in range(2000): # Present 200 trials
         prob.setOri(prob_ornt)
         prob.draw()
         win.flip()
-
-    # Sample from Gaussian distribution for orientation step
-    ori_step = np.random.normal(0, 4) # Mean of 0, variance of 5 deg
-    ori += ori_step # Add orientation step to current orientation
+        
+    ori += speed # Add orientation step to current orientation
+    # speed += np.random.normal(0, 0.1) 
+    speed = 10 * np.cos(trial * 0.01)
 
     # Update Gabor stimulus with new orientation
     gabor.ori = ori
