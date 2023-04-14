@@ -8,11 +8,6 @@ window_backend = 'glfw'
 win = visual.Window([1920, 1080], fullscr=True, allowGUI=True, units='deg',
                     monitor='rm_413', screen=1, winType=window_backend)
 
-# Joystick setup
-from psychopy.hardware import joystick
-joystick.backend = window_backend
-# joy = joystick.Joystick(0)
-
 # Define Gabor stimulus parameters
 sf = 0.5 # Spatial frequency
 contrast = 1.0 # Contrast
