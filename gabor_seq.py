@@ -59,8 +59,12 @@ for trial in range(2000): # Present 200 trials
         win.flip()
         
     ori += speed # Add orientation step to current orientation
-    # speed += np.random.normal(0, 0.1) 
+     
+    # cosine speed profile
     speed = 10 * np.cos(trial * 0.01)
+
+    # random speed increment
+    # speed += np.random.normal(0, 0.1)
 
     # Update Gabor stimulus with new orientation
     gabor.ori = ori
