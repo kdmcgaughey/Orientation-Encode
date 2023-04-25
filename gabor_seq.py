@@ -29,11 +29,11 @@ prob_ornt = 0
 prob.setOri(prob_ornt)
 def left_callback(event):
     global prob_ornt
-    prob_ornt -= 3.0
+    prob_ornt -= 10.0
 
 def right_callback(event):
     global prob_ornt
-    prob_ornt += 3.0
+    prob_ornt += 10.0
 
 # key binding for recording response
 key_bind = {'a':left_callback, 'l':right_callback}
@@ -43,23 +43,28 @@ for key, callback in key_bind.items():
 # Present sequence of Gabor stimuli
 speed = 0
 counter = 1
-for trial in range(2000): # Present 200 trials
-    # Random walk for orientation
+for trial in range(2000): # Present trials
 
-    for i in range(num_frames):    
+    # Random walk for orientation
+    for i in range(num_frames):   
+
         # Draw stimulus and flip window
         gabor.draw()
         prob.setOri(prob_ornt)
         prob.draw()
         win.flip()
         
-    ori += speed # Add orientation step to current orientation
+    # ori += speed # Add orientation step to current orientation
      
     # cosine speed profile
-    speed = 10 * np.cos(trial * 0.01)
+    # speed = 10 * np.cos(trial * 0.01)
 
     # random speed increment
-    # speed += np.random.normal(0, 0.1)
+    # speed += np.random.normal(0, 0.01)
+
+    # Sample from Gaussian distribution for orientation step
+    ori_step = np.random.normal(0,5) # Mean of 0, variance 5 deg
+    ori += ori_step # Add orientation step to current orientation
 
     # Update Gabor stimulus with new orientation
     gabor.ori = ori
