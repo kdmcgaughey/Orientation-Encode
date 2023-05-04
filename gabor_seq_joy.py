@@ -5,8 +5,12 @@ import keyboard
 
 # Create a window
 window_backend = 'glfw'
+from psychopy.hardware import joystick
 win = visual.Window([1920, 1080], fullscr=True, allowGUI=True, units='deg',
                     monitor='rm_413', screen=1, winType=window_backend)
+# joystick
+joystick.backend = window_backend
+joy = joystick.Joystick(0)
 
 # Create Gabor stimulus
 gabor = visual.GratingStim(win, sf=0.75, size=4, phase=0.5, mask='raisedCos', maskParams={'fringeWidth':0.25}, contrast=0.2)
@@ -33,10 +37,6 @@ key_bind = {'a':left_callback, 'l':right_callback}
 for key, callback in key_bind.items():
     keyboard.on_press_key(key, callback)
 
-# Initialize orientation
-#ori = np.random.rand() * 180
-#prob_ornt = ori
-
 # Save stuff
 stim_list = []
 resp_list = []
@@ -45,7 +45,7 @@ std_list = []
 
 # Define Gaussian random walk parameters:
 mean = 0
-std = 1
+std = 2
 
 # Define speed profile parameters:
 period = 20     # Frames
@@ -55,7 +55,7 @@ amplitude = 0   # Degrees
 num_trials = 30
 
 # Subject infoa
-subj = 'KDM'
+subj = 'KM_Joystick'
 
 # Condition info
 #cond = f"_std{std}_p{period}"
@@ -63,11 +63,10 @@ cond = f"_RW_only_std{std}"
 
 # Trial function
 def ori_stim_seq(ori, mean, std, period, amplitude, stim_list, resp_list):
-  
     global prob_ornt
    
     # Set number of frames for each trial sequence
-    trial_length = 600
+    trial_length = 60 * 12
 
     for t in range(trial_length): # Present trials    
 
@@ -75,8 +74,14 @@ def ori_stim_seq(ori, mean, std, period, amplitude, stim_list, resp_list):
         gabor.draw()
         prob.setOri(prob_ornt)
         prob.draw()
-        win.flip()
-        
+
+        # Joy stick response
+        # left axis    
+        x = joy.getAxis(0)        
+        y = joy.getAxis(1)
+        if np.sqrt(x ** 2 + y ** 2) >= 1:
+            prob_ornt = (np.arctan(y / x) / np.pi * 180.0 - 90) % 180 
+                
         # Get contribution from Gaussian random walk
         noise_t = np.random.normal(mean, std)
         ori += noise_t
@@ -91,8 +96,11 @@ def ori_stim_seq(ori, mean, std, period, amplitude, stim_list, resp_list):
         # Save response stuff
         resp_list.append(prob_ornt)
 
-        # Draw stimulus
+        # Update stimulus
         gabor.ori = stim_ori
+
+        # Flip frame 
+        win.flip()
 
 # Set up timing between "trials"
 exp_clock = core.Clock()
