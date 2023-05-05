@@ -144,7 +144,10 @@ class Tracking:
             ori = np.random.rand() * 180
             self.trial(ori)           
 
-        # # Save data
+        # Save data
+        self.stim_list = np.array(self.stim_list)
+        self.resp_list = np.array(self.resp_list)
+        
         # file_path = './ori_track_data_' + subj + cond + '.npy'
         # np.save(file_path,[stim_list, resp_list])
 
