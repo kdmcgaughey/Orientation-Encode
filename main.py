@@ -1,12 +1,12 @@
 from experiment.tracking import *
 
 # 'dial' or 'joystick'
-block = Tracking(mode='dial')
+block = Tracking(mode='joystick')
 
 # s.d. [1, 2, 3, 4]
-block.sd = 2
+block.sd = 1
 
 # subject name
-block.subject ='LQZ'
+block.subject ='KDM'
 
 block.run()

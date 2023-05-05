@@ -106,8 +106,8 @@ class Tracking:
             # Get joystick response
             if self.mode == 'joystick':
                 # left axis
-                x = joystick.getAxis(0)
-                y = joystick.getAxis(1)
+                x = self.joystick.getAxis(0)
+                y = self.joystick.getAxis(1)
                 if np.sqrt(x ** 2 + y ** 2) >= 1:
                     self.prob_ornt = (np.arctan(y / x) / np.pi * 180.0 - 90) % 180
 
@@ -130,8 +130,8 @@ class Tracking:
         self.R2 = 7
 
         # wait for button press
-        while not (self.joy.getButton(self.L2) or \
-                   self.joy.getButton(self.R2)):
+        while not (self.joystick.getButton(self.L2) or \
+                   self.joystick.getButton(self.R2)):
             self.win.flip()
         return
 
