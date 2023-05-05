@@ -159,8 +159,9 @@ class Tracking:
         self.stim_list = np.array(self.stim_list)
         self.resp_list = np.array(self.resp_list)
 
-        file_name = '%s_%s_SD_%d.mat' % (self.time_stmp, self.subject, self.sd)
+        file_name = '%s_%s_SD_%d_%s.mat' % (self.time_stmp, self.subject, self.sd, self.mode)
         file_path = os.path.join('.', 'data', file_name)
-        data = {'stim':self.stim_list, 'resp':self.resp_list, 'sd':self.sd}
+        data = {'stim':self.stim_list, 'resp':self.resp_list, 
+                'sd':self.sd, 'mode':self.mode}
         savemat(file_path, data)
         print('Data saved to ' + file_path)
