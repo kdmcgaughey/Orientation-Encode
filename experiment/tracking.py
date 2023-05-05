@@ -1,6 +1,7 @@
 # Import necessary modules
 from psychopy import core, visual, logging
 from psychopy.hardware import joystick
+from datetime import datetime
 import numpy as np
 import keyboard
 
@@ -70,8 +71,8 @@ class Tracking:
         self.sd = 1
 
         # Condition info
-        self.subject = None
-        self.tag = None
+        self.time_stmp = datetime.now().strftime("%d_%m_%Y_%H_%M")
+        self.subject = None        
 
     def trial(self, ori):
         stim = []
@@ -134,7 +135,10 @@ class Tracking:
         return                
 
     def run(self):
-        # Run trials
+        print(self.time_stmp)
+        print(self.subject + ' SD=%.2f' % self.sd)
+
+        # Run trials        
         for trials in range (self.num_trials):
             # Wait for subject to start next trial
             if self.mode == 'dial':

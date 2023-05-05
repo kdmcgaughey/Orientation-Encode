@@ -1,19 +1,10 @@
-# # Define Gaussian random walk parameters:
-# # S.D. [1, 2, 3, 4]
-# mean = 0
-# std = 1
-
-# # Subject info
-# subj = 'KDM'
-
-# # Define speed profile parameters:
-# period = 20     # Frames
-# amplitude = 0   # Degrees'
-
 from experiment.tracking import *
 
+# 'dial' or 'joystick'
 block = Tracking(mode='dial')
-block.sd = 1
-block.subject = 'KDM'
+
+# S.D. [1, 2, 3, 4]
+block.sd = 2
+block.subject ='LQZ'
 
 block.run()
