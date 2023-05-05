@@ -3,7 +3,7 @@ from psychopy import core, visual, logging
 from psychopy.hardware import joystick
 from datetime import datetime
 import numpy as np
-import keyboard
+import keyboard, os
 
 class Tracking:
     def __init__(self, mode='dial'):
@@ -97,7 +97,11 @@ class Tracking:
             self.gabor.draw()
             self.prob.draw()
             self.win.flip()
-            
+                        
+            # Save stimulus and response orientation at each frame
+            stim.append(stim_ori)
+            resp.append(self.prob_ornt)
+
             # Get joystick response
             if self.mode == 'joystick':
                 # left axis    
@@ -106,11 +110,7 @@ class Tracking:
                 if np.sqrt(x ** 2 + y ** 2) >= 1:
                     self.prob_ornt = (np.arctan(y / x) / np.pi * 180.0 - 90) % 180 
 
-            # Save stimulus and response orientation at each frame
-            stim.append(stim_ori)
-            resp.append(self.prob_ornt)
-
-        # Add to all stimulus and response
+        # Add to all stimulus and response        
         self.stim_list.append(stim)
         self.resp_list.append(resp)
         return
