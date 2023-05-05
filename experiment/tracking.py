@@ -30,7 +30,7 @@ class Tracking:
         # Response probe
         self.prob_ornt = 0
         self.resp_flag = False
-        
+
         # Input mode
         self.mode = mode
         if self.mode == 'dial':
@@ -52,12 +52,12 @@ class Tracking:
 
             # register callback, wait for key press
             keyboard.on_release_key('space', confirm_callback)
-                
+
         if self.mode == 'joystick':
             # initialize joystick
             joystick.backend = window_backend
             self.joystick = joystick.Joystick(0)
-        
+
         # Record stimulus and responses
         self.stim_list = []
         self.resp_list = []
@@ -73,7 +73,7 @@ class Tracking:
 
         # Condition info
         self.time_stmp = datetime.now().strftime("%d_%m_%Y_%H_%M")
-        self.subject = None        
+        self.subject = None
 
     def trial(self, ori):
         stim = []
@@ -94,67 +94,67 @@ class Tracking:
             self.gabor.ori = stim_ori
             self.prob.ori = self.prob_ornt
 
-            # Draw stimulus and flip window             
+            # Draw stimulus and flip window
             self.gabor.draw()
             self.prob.draw()
             self.win.flip()
-                        
+
             # Save stimulus and response orientation at each frame
             stim.append(stim_ori)
             resp.append(self.prob_ornt)
 
             # Get joystick response
             if self.mode == 'joystick':
-                # left axis    
-                x = joystick.getAxis(0)        
+                # left axis
+                x = joystick.getAxis(0)
                 y = joystick.getAxis(1)
                 if np.sqrt(x ** 2 + y ** 2) >= 1:
-                    self.prob_ornt = (np.arctan(y / x) / np.pi * 180.0 - 90) % 180 
+                    self.prob_ornt = (np.arctan(y / x) / np.pi * 180.0 - 90) % 180
 
-        # Add to all stimulus and response        
+        # Add to all stimulus and response
         self.stim_list.append(stim)
         self.resp_list.append(resp)
         return
-    
+
     def kb_wait(self):
         # setup callback
         self.resp_flag = True
 
-        # wait for keyboard press     
+        # wait for keyboard press
         while self.resp_flag:
             self.win.flip()
         return
-    
-    def joy_wait(self):                
+
+    def joy_wait(self):
         self.L2 = 6
         self.R2 = 7
-        
+
         # wait for button press
         while not (self.joy.getButton(self.L2) or \
-                   self.joy.getButton(self.R2)):            
+                   self.joy.getButton(self.R2)):
             self.win.flip()
-        return                
+        return
 
     def run(self):
         print(self.time_stmp)
         print(self.subject + ' SD=%.2f' % self.sd)
 
-        # Run trials        
+        # Run trials
         for trials in range (self.num_trials):
             # Wait for subject to start next trial
             if self.mode == 'dial':
                 self.kb_wait()
-                
+
             if self.mode == 'joystick':
-                self.joy_wait()                
+                self.joy_wait()
 
             # Initialize orientation
             ori = np.random.rand() * 180
             self.prob_ornt = ori
-            self.trial(ori)           
+            self.trial(ori)
 
         print('Overall, %i frames were dropped.' % self.win.nDroppedFrames)
-        
+
         # Save data
         self.stim_list = np.array(self.stim_list)
         self.resp_list = np.array(self.resp_list)
