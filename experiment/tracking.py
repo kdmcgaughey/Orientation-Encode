@@ -27,21 +27,29 @@ class Tracking:
 
         # Response probe
         self.prob_ornt = 0
+        self.resp_flag = False
         
         # Input mode
         self.mode = mode
         if self.mode == 'dial':
-            # Define callback function for keyboard event
+            # Define callback function for rotating the probe
             def left_callback(event):
-                self.prob_ornt -= 4
+                self.prob_ornt -= 3
 
             def right_callback(event):
-                self.prob_ornt += 4
+                self.prob_ornt += 3
 
             # Key binding for recording response
             key_bind = {'a':left_callback, 'l':right_callback}
             for key, callback in key_bind.items():
                 keyboard.on_press_key(key, callback)
+
+            # Define callback function for confrim
+            def confirm_callback(event):
+                self.resp_flag= False
+
+            # register callback, wait for key press
+            keyboard.on_release_key('space', confirm_callback)
                 
         if self.mode == 'joystick':
             # initialize joystick
@@ -80,11 +88,11 @@ class Tracking:
             wave_t = 0
             stim_ori = ori + wave_t
 
-            # set stimulus orientation
+            # set stimulus and probe orientation
             self.gabor.ori = stim_ori
+            self.prob.ori = self.prob_ornt
 
-            # Draw stimulus and flip window
-            self.prob.setOri(self.prob_ornt)
+            # Draw stimulus and flip window             
             self.gabor.draw()
             self.prob.draw()
             self.win.flip()
@@ -106,18 +114,13 @@ class Tracking:
         self.resp_list.append(resp)
         return
     
-    def kb_wait(self, wait_key):
+    def kb_wait(self):
         # setup callback
         self.resp_flag = True
-        def confirm_callback(event):
-            self.resp_flag= False
 
-        # register callback, wait for key press
-        keyboard.on_release_key(wait_key, confirm_callback)
+        # wait for keyboard press     
         while self.resp_flag:
             self.win.flip()
-
-        keyboard.unhook_all()
         return
     
     def joy_wait(self):                
@@ -135,13 +138,14 @@ class Tracking:
         for trials in range (self.num_trials):
             # Wait for subject to start next trial
             if self.mode == 'dial':
-                self.kb_wait(key='space')
+                self.kb_wait()
                 
             if self.mode == 'joystick':
                 self.joy_wait()                
 
             # Initialize orientation
             ori = np.random.rand() * 180
+            self.prob_ornt = ori
             self.trial(ori)           
 
         # Save data
