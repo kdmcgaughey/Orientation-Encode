@@ -91,7 +91,7 @@ def ori_stim_seq(ori, mean, std, period, amplitude, stim_list, resp_list):
 
         # Save response stuff
         resp_list.append(prob_ornt)
-
+        
 # Set up timing between "trials"
 exp_clock = core.Clock()
 blank_delay = 4

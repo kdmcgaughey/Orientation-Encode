@@ -1,15 +1,11 @@
-from experiment.orient_context import *
-import sys
+# Define Gaussian random walk parameters:
+# S.D. [1, 2, 3, 4]
+mean = 0
+std = 1
 
-# create the experiment with n_trial for each block
-# different class for choices of IO methods
-if not len(sys.argv) == 2:
-    sub_val = str(input('Enter Unique Subject ID:'))
-else:
-    sub_val = str(sys.argv[1])
+# Subject info
+subj = 'KDM'
 
-# start running the experiment
-exp = OrientEncodeButtons(sub_val)
-exp.start(wait_on_key=True)
-exp.run()
-exp.save_data()
+# Define speed profile parameters:
+period = 20     # Frames
+amplitude = 0   # Degrees'
