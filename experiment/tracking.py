@@ -1,7 +1,8 @@
 # Import necessary modules
-from psychopy import core, visual, logging
+from psychopy import visual, logging
 from psychopy.hardware import joystick
 from datetime import datetime
+from scipy.io import savemat
 import numpy as np
 import keyboard, os
 
@@ -152,13 +153,14 @@ class Tracking:
             self.prob_ornt = ori
             self.trial(ori)           
 
+        print('Overall, %i frames were dropped.' % self.win.nDroppedFrames)
+        
         # Save data
         self.stim_list = np.array(self.stim_list)
         self.resp_list = np.array(self.resp_list)
-        
-        # file_path = './ori_track_data_' + subj + cond + '.npy'
-        # np.save(file_path,[stim_list, resp_list])
 
-        # print('Data saved to ' + file_path)
-        # print('Overall, %i frames were dropped.' % win.nDroppedFrames)
-
+        file_name = '%s_%s_SD_%d.mat' % (self.time_stmp, self.subject, self.sd)
+        file_path = os.path.join('.', 'data', file_name)
+        data = {'stim':self.stim_list, 'resp':self.resp_list, 'sd':self.sd}
+        savemat(file_path, data)
+        print('Data saved to ' + file_path)
