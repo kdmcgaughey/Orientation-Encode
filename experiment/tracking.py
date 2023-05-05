@@ -36,10 +36,10 @@ class Tracking:
         if self.mode == 'dial':
             # Define callback function for rotating the probe
             def left_callback(event):
-                self.prob_ornt -= 3
+                self.prob_ornt -= 3.5
 
             def right_callback(event):
-                self.prob_ornt += 3
+                self.prob_ornt += 3.5
 
             # Key binding for recording response
             key_bind = {'a':left_callback, 'l':right_callback}
