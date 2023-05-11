@@ -106,8 +106,8 @@ class Tracking:
             # Get joystick response
             if self.mode == 'joystick':
                 # left axis
-                x = joystick.getAxis(0)
-                y = joystick.getAxis(1)
+                x = self.joystick.getAxis(0)
+                y = self.joystick.getAxis(1)
                 if np.sqrt(x ** 2 + y ** 2) >= 1:
                     self.prob_ornt = (np.arctan(y / x) / np.pi * 180.0 - 90) % 180
 
@@ -130,8 +130,8 @@ class Tracking:
         self.R2 = 7
 
         # wait for button press
-        while not (self.joy.getButton(self.L2) or \
-                   self.joy.getButton(self.R2)):
+        while not (self.joystick.getButton(self.L2) or \
+                   self.joystick.getButton(self.R2)):
             self.win.flip()
         return
 
@@ -159,8 +159,9 @@ class Tracking:
         self.stim_list = np.array(self.stim_list)
         self.resp_list = np.array(self.resp_list)
 
-        file_name = '%s_%s_SD_%d.mat' % (self.time_stmp, self.subject, self.sd)
+        file_name = '%s_%s_SD_%d_%s.mat' % (self.time_stmp, self.subject, self.sd, self.mode)
         file_path = os.path.join('.', 'data', file_name)
-        data = {'stim':self.stim_list, 'resp':self.resp_list, 'sd':self.sd}
+        data = {'stim':self.stim_list, 'resp':self.resp_list, 
+                'sd':self.sd, 'mode':self.mode}
         savemat(file_path, data)
         print('Data saved to ' + file_path)

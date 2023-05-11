@@ -4,7 +4,7 @@ from experiment.tracking import *
 block = Tracking(mode='dial')
 
 # s.d. [1, 2, 3, 4]
-block.sd = 2
+block.sd = 1
 
 # subject name
 block.subject ='LQZ'
