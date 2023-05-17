@@ -5,23 +5,23 @@
 
 % Establish paths
 
-dataPath = '/Users/karamcgaughey/Documents/GoldLab/Orientation_Tracking/Behavior/Pliot/';
+dataPath = '/Users/karamcgaughey/Documents/GoldLab/Orientation_Tracking/Behavior/Pilot_2/';
 filePath = '/Users/karamcgaughey/Documents/GoldLab/Orientation_Tracking/Analysis/';
 
 cd(dataPath)
 
 % Load in .mat files for current subject
 
-subj = 'LQZ';
+subj = 'KDM';
 
-filePattern = strcat('*', subj,'*.mat');
+filePattern = strcat('*', subj,'*joystick.mat');
 files = dir(strcat(dataPath, filePattern));
 nfiles = length(files);
 
 % Organize into stimulus and response matrices for each SD
 
 resp_mode = 'joystick';
-sd_list = [1,2,3];
+sd_list = [2,3,4,5];
 
 for f = 1:nfiles
 
@@ -70,7 +70,7 @@ dat_resp_diff = diff(dat_resp(:,:,:),1,2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 n_trials = size(dat_stim_diff,1);
-cond = 1;
+cond = 5;
 
 figure
 
@@ -143,7 +143,7 @@ figure
 for s = 1:num_cond
     plot(smooth(resp_lags(s,1:tMaxLag),5)/60,smooth(cross_cors(s,1:tMaxLag),5))
     xticks([0, 0.5, 1, 1.5, 2])
-    ylim([-0.02 0.12])
+    %ylim([-0.02 0.12])
     hold on;
 end
 
@@ -164,7 +164,7 @@ initType = 'RND';   % Initialization type
 bPLOT = 0;          % Plot or not
 bPLOTrpt = 0;       % Plot or not
 
-for s = 1:num_cond
+for s = 5
     
     [rFit,rParam,rLagFit] = xcorrFitMLE(resp_lags(s,1:tMaxLag),cross_cors(s,1:tMaxLag),cross_cors_std(s,1:tMaxLag),rStdK,modelType,initType,bPLOT,bPLOTrpt);
 
@@ -179,14 +179,14 @@ end
 
 % Calculating delay of impulse response function
 
-for s = 1:num_cond
+for s = 2:5 %1:num_cond
     ISF_delay(s,1) = gauss_fit_params(1,2,s)/60;
 end
 
 % Calculating width of impulse response function (width at half max)
 % BurgeLabToolbox: widthHalfHeightGauss
 
-for s = 1:num_cond
+for s = 2:5 %1:num_cond
     [BW, T, HHlo, HHhi] = fullWidthHalfHeight(gauss_fit_lags(s,1:tMaxLag)',gauss_fits(s,1:tMaxLag)',[]);
     ISF_width(s,1) = BW/60;
 end
@@ -196,18 +196,18 @@ end
 figure
 subplot(1,2,1)
 
-plot(1:1:3, ISF_delay,'k--.', 'MarkerSize',30)
-xlim([0,max(sd_list)+1])
-xticks([sd_list(1) sd_list(2) sd_list(3)])
+plot(2:1:5, ISF_delay(2:end),'k--.', 'MarkerSize',30)
+xlim([min(sd_list)-1,max(sd_list)+1])
+xticks([sd_list(1) sd_list(2) sd_list(3) sd_list(4)])
 xlabel('Random walk standard deviation (deg/frame)') 
 ylabel('Impulse response function delay (s)') 
 
 
 subplot(1,2,2)
 
-plot(1:1:3, ISF_width,'k--.', 'MarkerSize',30)
-xlim([0,max(sd_list)+1])
-xticks([sd_list(1) sd_list(2) sd_list(3)])
+plot(2:1:5, ISF_width(2:end),'k--.', 'MarkerSize',30)
+xlim([min(sd_list)-1,max(sd_list)+1])
+xticks([sd_list(1) sd_list(2) sd_list(3) sd_list(4)])
 xlabel('Random walk standard deviation (deg/frame)') 
 ylabel('Impulse response function width (s)') 
 

@@ -65,13 +65,6 @@ for s = 1:num_cond
     resp_lags(s,:) = trho;
 end
 
-figure 
-
-plot(resp_lags(s,1:tMaxLag)/60,cross_cors(s,1:tMaxLag))
-xticks([0, 0.5, 1, 1.5, 2])
-hold on;
-
-
 % Should recover impulse response function
 
 
