@@ -16,15 +16,15 @@ class Tracking:
         logging.console.setLevel(logging.WARNING)
 
         # Create Gabor stimulus
-        self.gabor = visual.GratingStim(self.win, sf=0.75, size=6, phase=0.5, mask='raisedCos',
-                                        maskParams={'fringeWidth':0.25}, contrast=0.2)
+        self.gabor = visual.GratingStim(self.win, sf=0.75, size=4, phase=0.5, mask='raisedCos',
+                                        maskParams={'fringeWidth':0.25}, contrast=0.20)
         # Create center fixation
-        self.center = visual.GratingStim(self.win, sf=0.0, size=1.2, mask='raisedCos',
+        self.center = visual.GratingStim(self.win, sf=0.0, size=1, mask='raisedCos',
                                          maskParams={'fringeWidth':0.2}, contrast=0.0, autoDraw=True)
         self.fixation = visual.GratingStim(self.win, color=0.5, colorSpace='rgb',
                                            tex=None, mask='raisedCos', size=0.4, autoDraw=True)
         # Create response probe
-        self.prob = visual.Line(self.win, start=(0.0, -3), end=(0.0, 3), lineWidth=4.0,
+        self.prob = visual.Line(self.win, start=(0.0, -2), end=(0.0, 2), lineWidth=4.0,
                                 lineColor='black', size=1, contrast=0.80)
 
         # Response probe
@@ -63,9 +63,9 @@ class Tracking:
         self.resp_list = []
 
         # Experiment parameters
-        self.num_trials = 50
+        self.num_trials = 30
         self.frame_rate = 60
-        self.trial_length = 12 * self.frame_rate
+        self.trial_length = 11 * self.frame_rate
 
         # Gaussian random walk parameters
         self.mean = 0
@@ -106,8 +106,8 @@ class Tracking:
             # Get joystick response
             if self.mode == 'joystick':
                 # left axis
-                x = self.joystick.getAxis(0)
-                y = self.joystick.getAxis(1)
+                x = self.joystick.getAxis(2)
+                y = self.joystick.getAxis(3)
                 if np.sqrt(x ** 2 + y ** 2) >= 1:
                     self.prob_ornt = (np.arctan(y / x) / np.pi * 180.0 - 90) % 180
 
@@ -126,8 +126,8 @@ class Tracking:
         return
 
     def joy_wait(self):
-        self.L2 = 6
-        self.R2 = 7
+        self.L2 = 4
+        self.R2 = 5
 
         # wait for button press
         while not (self.joystick.getButton(self.L2) or \
