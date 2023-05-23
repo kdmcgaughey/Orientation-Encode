@@ -1,25 +1,38 @@
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% SET UP WORKSPACE %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Establish paths
 
-dataPath = '/Users/karamcgaughey/Documents/GoldLab/Orientation_Tracking/Behavior/Pilot_2/';
+dataPath = '/Users/karamcgaughey/Documents/GoldLab/Orientation_Tracking/Behavior/Pilot_3/';
 filePath = '/Users/karamcgaughey/Documents/GoldLab/Orientation_Tracking/Analysis/';
 
 cd(dataPath)
 
 % Load in .mat files for current subject
 
-load('12_05_2023_11_31_KDM_SD_3_joystick.mat')
+subj = 'KDM';
 
-dat_stim(:,:,1) = stim;
-dat_resp(:,:,1) = resp;
+filePattern = strcat('*', subj,'*.mat');
+files = dir(strcat(dataPath, filePattern));
+nfiles = length(files);
 
-load('12_05_2023_11_41_KDM_SD_3_joystick_lowcontrast.mat')
+% Organize into stimulus and response matrices for each SD
 
-dat_stim(:,:,2) = stim;
-dat_resp(:,:,2) = resp;
+for f = 1:nfiles
+
+    load(files(f).name)
+    disp(files(f).name)
+
+    % Stimulus matrix (trials,frames,sd)
+
+    dat_stim(:,:,f) = stim;
+
+    % Response matrix (trials,frames,sd)
+
+    dat_resp(:,:,f) = resp;
+end
 
 %%
 
@@ -40,6 +53,8 @@ dat_resp = dat_resp./2;
 
 dat_stim_diff = diff(dat_stim(:,:,:),1,2);
 dat_resp_diff = diff(dat_resp(:,:,:),1,2);
+
+%%
 
 %%
 
@@ -75,22 +90,29 @@ end
 figure
 
 for s = 1:num_cond
-    %plot(resp_lags(s,:)/60, cross_cors(s,:))
-    plot(resp_lags(s,1:tMaxLag)/60,cross_cors(s,1:tMaxLag))
+    plot(resp_lags(s,1:tMaxLag)/60,cross_cors(s,1:tMaxLag), 'LineWidth', 2.5)
     xticks([0, 0.5, 1, 1.5, 2])
+    legend('0.125', '0.025', '0.005')
     hold on;
 end
 
-% Plot stuff, but smoothed across 5 frames
+xlabel('Time (s)') 
+ylabel('Correlation value') 
+
+
+% Plot stuff, but smoothed across 5 frames'LineWidth', 2.5)
 
 figure
 
 for s = 1:num_cond
-    plot(smooth(resp_lags(s,1:tMaxLag),5)/60,smooth(cross_cors(s,1:tMaxLag),5))
+    plot(smooth(resp_lags(s,1:tMaxLag),5)/60,smooth(cross_cors(s,1:tMaxLag),5), 'LineWidth', 2.5)
     xticks([0, 0.5, 1, 1.5, 2])
-    %ylim([-0.02 0.12])
+    legend('0.125', '0.025', '0.005')
     hold on;
 end
+
+xlabel('Time (s)') 
+ylabel('Correlation value') 
 
 %%
 
@@ -122,11 +144,23 @@ end
 
 %%
 
+
+
+%%
+
 % Calculating delay of impulse response function
 
 for s = 1:num_cond
     ISF_delay(s,1) = gauss_fit_params(1,2,s)/60;
 end
+
+
+% Calculating peak of impulse response function
+
+for s = 1:num_cond
+    ISF_peak(s,1) = gauss_fit_params(1,1,s)/60;
+end
+
 
 % Calculating width of impulse response function (width at half max)
 % BurgeLabToolbox: widthHalfHeightGauss
@@ -138,42 +172,98 @@ end
 
 % Plotting across conditions
 
+sd_list = [1:3];
+
 figure
-subplot(1,2,1)
+subplot(1,3,1)
 
-plot(1:1:2, ISF_delay,'k--.', 'MarkerSize',30)
-xlim([min(sd_list)-1,max(sd_list)+1])
-xticks([sd_list(1) sd_list(2)])
-xlabel('Random walk standard deviation (deg/frame)') 
-ylabel('Impulse response function delay (s)') 
+plot(1:1:3, ISF_delay,'k--.', 'MarkerSize',20)
+xlim([min(sd_list)-0.5,max(sd_list)+0.5])
+xticks([sd_list(1) sd_list(2) sd_list(3)])
+xticklabels({'0.125','0.025','0.005'})
+xlabel('Target contrast') 
+ylabel('Time to peak correlation value (s)') 
+
+subplot(1,3,2)
+
+plot(1:1:3, ISF_peak,'k--.', 'MarkerSize',20)
+xlim([min(sd_list)-0.5,max(sd_list)+0.5])
+xticks([sd_list(1) sd_list(2) sd_list(3)])
+xticklabels({'0.125','0.025','0.005'})
+xlabel('Target contrast') 
+ylabel('Peak correlation value') 
 
 
-subplot(1,2,2)
+subplot(1,3,3)
 
-plot(1:1:2, ISF_width,'k--.', 'MarkerSize',30)
-xlim([min(sd_list)-1,max(sd_list)+1])
-xticks([sd_list(1) sd_list(2)])
-xlabel('Random walk standard deviation (deg/frame)') 
-ylabel('Impulse response function width (s)') 
+plot(1:1:3, ISF_width,'k--.', 'MarkerSize',20)
+xlim([min(sd_list)-0.5,max(sd_list)+0.5])
+xticks([sd_list(1) sd_list(2) sd_list(3)])
+xticklabels({'0.125','0.025','0.005'})
+xlabel('Target contrast') 
+ylabel('CCG width (s)') 
 
 
 %%
 
-%%%%%%%%%%% Check Gaussian fits %%%%%%%%%%%
+%%%%%%%%%%% CALCULATING ORIENTATION ERROR %%%%%%%%%%%
 
 for s = 1:num_cond
-
-    figure
-
-    plot(resp_lags(s,1:tMaxLag)/60,cross_cors(s,1:tMaxLag))
-    xticks([0, 0.5, 1, 1.5, 2])
-    hold on
-
-    plot(gauss_fit_lags(s,1:tMaxLag)/60,gauss_fits(s,1:tMaxLag), 'LineWidth',2)
-    xticks([0, 0.5, 1, 1.5, 2])
-
-    %title(['Impulse response function w/ Gaussian fit for SD = ', num2str(sd_list(s)), ' (', resp_mode, ')'])
-    xlabel('Seconds') 
-    ylabel('xcorr') 
-
+    for t = 1:30
+        Ornt_Err(t,:,s) = dat_stim(t,:,s) - dat_resp(t,:,s);
+    end
 end
+
+% Plot example trace (10th "trial")
+
+color = {[0 0.4470 0.7410], [0.8500 0.3250 0.0980], [0.9290 0.6940 0.1250]};
+
+for s = 1:num_cond
+    figure(s)
+
+    plot(1:1:600, Ornt_Err(10,61:end,s)/60, 'LineWidth', 2.5, 'Color', color{s})
+
+    ylim([-2 2])
+    xlabel('Time (frames)') 
+    ylabel('Orientation error')
+end
+
+%%
+
+% Plot distribution of errors
+
+figure
+
+cond_list = [3,2,1];
+color = {[0.9290 0.6940 0.1250], [0.8500 0.3250 0.0980], [0 0.4470 0.7410]};
+
+for s = 1:num_cond
+    histogram(Ornt_Err(:,:,cond_list(s)), 'FaceAlpha', 0.3, 'FaceColor', color{s})
+    xlim([-100 100])
+    hold on
+end
+
+xlabel('"Trial" count') 
+ylabel('Orientation error') 
+
+
+% Average orientation error as a function of contrast
+
+for s = 1:num_cond
+    avg_err_full(s,:) = mean(Ornt_Err(:,:,s));
+end
+
+avg_err = abs(mean(avg_err_full,2));
+
+figure
+
+plot(1:1:3, avg_err,'k--.', 'MarkerSize',20)
+xlim([min(sd_list)-0.5,max(sd_list)+0.5])
+xticks([sd_list(1) sd_list(2) sd_list(3)])
+xticklabels({'0.125','0.025','0.005'})
+xlabel('Target contrast') 
+ylabel('Average orientation error') 
+
+
+
+

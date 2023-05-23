@@ -1,8 +1,8 @@
 
 % Make fake impulse response function with Gamma function (gammapdf)
 
-fake_IRF = gampdf(12,1:60,0.5);
-plot(fake_IRF)
+fake_IRF = gampdf(0:60,12,0.5);
+plot((0:60)/60,fake_IRF)
 
 %%
 
@@ -24,14 +24,13 @@ for t = 1:size(stim,1)
     response(t,:) = conv(stim(t,:), flip(fake_IRF), 'same');
 end
 
-% Have to divide by 2?
-
-response = response./2;
-
 % Wrap stimulus and response
 
 stim_wrap = wrapTo360(stim(:,:).*2);
 resp_wrap = wrapTo360(response(:,:).*2);
+
+stim_wrap = stim_wrap./2;
+resp_wrap = resp_wrap./2;
 
 % Take diff
 
@@ -64,6 +63,13 @@ for s = 1:num_cond
     cross_cors_std(s,:) = rSD;
     resp_lags(s,:) = trho;
 end
+
+figure 
+
+plot(resp_lags(s,1:tMaxLag)/60,cross_cors(s,1:tMaxLag))
+xticks([0, 0.5, 1, 1.5, 2])
+hold on;
+
 
 % Should recover impulse response function
 
