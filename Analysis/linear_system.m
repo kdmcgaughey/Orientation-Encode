@@ -1,110 +1,106 @@
 
 % Make fake impulse response function with Gamma function (gammapdf)
 
-fake_IRF = gampdf(0:60,12,0.5);
-plot((0:60)/60,fake_IRF)
+fake_IRF = gampdf(1:60,10,1.5);
+
+figure
+plot((1:60)/60,fake_IRF)
 
 %%
 
-% Data path
+% Make fake random walk signal with SD = 3 (likely experimental condition)
+% 100 "trials"
 
-dataPath = '/Users/karamcgaughey/Documents/GoldLab/Orientation_Tracking/Behavior/Pliot/';
-cd(dataPath)
+for i = 1:100
 
-% Load in .mat file
+    % Random walk:
 
-load('05_05_2023_13_17_KDM_SD_2_joystick.mat')
+    stim_RW = normrnd(0, 5, [1,1500]);
+    stim_RW = cumsum(stim_RW);
 
+    all_stim_RW(i,:) = stim_RW;
 
-%%
+    % Sinusoid:
 
-% Convolve IRF with each stimulus "trial" to get matrices of responses
+    f = 0.5/60;
+    a = 8;
+    t = 1:1:1500;
+    y = a*sin(2*pi*f*t);
 
-for t = 1:size(stim,1)
-    response(t,:) = conv(stim(t,:), flip(fake_IRF), 'same');
+    all_stim_SW(i,:) = y;
+
 end
 
-% Wrap stimulus and response
+figure
 
-stim_wrap = wrapTo360(stim(:,:).*2);
-resp_wrap = wrapTo360(response(:,:).*2);
-
-stim_wrap = stim_wrap./2;
-resp_wrap = resp_wrap./2;
-
-% Take diff
-
-stim_diff = diff(stim_wrap,1,2);
-resp_diff = diff(resp_wrap,1,2);
-
-%%
-
-% Cross correlate with tracking stimulus
-
-% Johannes impulse response function code
-% BurgeLabToolbox: xcorrEasy
-
-trim_vals = 59;                                 % Values to trim off beginning of each "trial"
-t = 1:1:size(stim_diff,2) - trim_vals;      % Values at which time series are sampled
-tMaxLag = 120;                                  % Maximum lag (in units of smpVal)
-bPLOT = 0;                                      % Plot or not
-bPLOTall = 0;                                   % Plot or not                  
-
-num_cond = size(stim_diff,3);
-
-for s = 1:num_cond
-
-    [rMU,trho,rALL,rSD] = xcorrCircEasy(stim_diff(:,trim_vals+1:end,s)',resp_diff(:,trim_vals+1:end,s)', t', tMaxLag, [], [], bPLOT, bPLOTall);
-
-    % Save values
-
-    cross_cors(s,:) = rMU;
-    cross_cors_all(:,:,s) = rALL;
-    cross_cors_std(s,:) = rSD;
-    resp_lags(s,:) = trho;
-end
-
-figure 
-
-plot(resp_lags(s,1:tMaxLag)/60,cross_cors(s,1:tMaxLag))
-xticks([0, 0.5, 1, 1.5, 2])
+plot(all_stim_RW(1,:))
 hold on;
+plot(all_stim_SW(1,:))
 
 
-% Should recover impulse response function
+% Combine
 
-
-% Try adding small sinusoid to the stimulus and see how that affects things
-
-
-
-
-
+%all_stim = all_stim_RW + all_stim_SW;
+all_stim = all_stim_RW;
 
 %%
-signal = normrnd(0, 1, [1, 100]);
-plot(signal);
+
+% Pad IRF to center peak within the array
+
+IRF_pad = [zeros(1,32), fake_IRF];
+
+
+% Convolve IRF with signal
+
+for t = 1:size(all_stim,1)
+    %resp(t,:) = conv(all_stim(t,:), flip(fake_IRF), 'same');
+    %resp(t,:) = conv(flip(IRF_pad), all_stim(t,:), 'same');
+    resp(t,:) = conv(all_stim(t,:), fake_IRF, 'full');
+
+end
+
+% Plot stuff
+
+figure
+
+plot(all_stim(1,:))
+hold on;
+plot(resp(1,1:1500))
 
 %%
-irf = zeros([1, 10]);
-irf(3) = 1;
 
-plot(irf);
+% Take difference 
 
-%% 
-axis = 0 : 0.2 : 2;
-irf_filter = normpdf(axis, 0, 2);
-plot(irf_filter)
+stim_diff = diff(all_stim,1,2);
+resp_diff = diff(resp,1,2);
+
+% Cross correlate
+
+smpVal = 1:1:size(stim_diff,2);     % Values at which time series are sampled
+maxLagVal = 120;                    % Maximum lag (in units of smpVal)
+bPLOT = 0;                          % Plot or not
+bPLOTall = 0;                       % Plot or not   
+
+
+for t = 1:size(all_stim,1)
+   
+    [r, lags] = xcorrEasy(stim_diff(t,:)',resp_diff(t,:)', smpVal', maxLagVal, 'coeff', [], bPLOT, bPLOTall);
+
+    all_r(t,:) = r;
+    all_lags(t,:) = lags;
+end
 
 %%
-output = conv(signal, flip(irf), 'same');
 
-figure();
-plot(signal); hold on;
-plot(output);
+% Average cross correlation
 
-%%
-output = conv(signal, flip(irf_filter), 'same');
-figure();
-plot(signal); hold on;
-plot(output);
+avg_xcorr = mean(all_r,1);
+avg_lag = mean(all_lags,1);
+
+% Plot stuff
+
+figure
+plot(avg_lag/60,avg_xcorr)
+xlim([0 1])
+
+

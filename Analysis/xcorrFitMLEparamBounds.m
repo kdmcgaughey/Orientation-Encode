@@ -26,8 +26,8 @@ rLagValMax = max(rLagVal);
 % LOWER & UPPER BOUND ON AMPLITUDE
 LBa = 0;               UBa = 1;
 % LOWER & UPPER BOUND ON MAX
-%LBm = 0.25.*rLagValMin; UBm = 0.25.*rLagValMax;
-LBm = 0.25.*rLagValMin; UBm = 0.4.*rLagValMax;
+LBm = 0.25.*rLagValMin; UBm = 0.25.*rLagValMax;
+%LBm = 0.25.*rLagValMin; UBm = 0.4.*rLagValMax;
 LBmLog = .0001;
 
 % Change from UBm = 0.25.*rLagValMax (KDM)
