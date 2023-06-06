@@ -25,7 +25,7 @@ class Tracking:
         self.fixation = visual.GratingStim(self.win, color=0.5, colorSpace='rgb',
                                            tex=None, mask='raisedCos', size=0.4, autoDraw=True)        
         self.wait_text = visual.TextStim(self.win, 'Press Button to Continue', 
-                                         color=(0, 1, 0), colorSpace='rgb')
+                                         color=(0, 1, 0), colorSpace='rgb', pos=(0.0, 2.0))
 
         # Create response probe
         self.prob = visual.Line(self.win, start=(0.0, -2), end=(0.0, 2), lineWidth=4.0,
