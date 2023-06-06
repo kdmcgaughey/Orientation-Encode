@@ -3,7 +3,7 @@ import random
 
 # loop through the experimental blocks
 # define parameters of each block
-amplitude = [2, 4, 6]
+amplitude = [2, 4]
 period = [30, 60, 120, 240]
 
 # create pairs of conditions and shuffle them
@@ -12,20 +12,19 @@ for idx in range(len(amplitude)):
     for idy in range(len(period)):
         conditions.append((amplitude[idx], period[idy]))
 random.shuffle(conditions)
-conditions.insert(0, (0, 60))
+
+# 'dial' or 'joystick'
+block = Tracking(mode='joystick')
 
 # loop through the conditions and run each block
 for idx in range(len(conditions)):
-    amplitude, period = conditions[idx]
-    
-    # 'dial' or 'joystick'
-    block = Tracking(mode='joystick')
+    # init block
+    block.init()
 
+    # get condition
+    amplitude, period = conditions[idx]    
     # number of trials
-    if idx == 0:
-        block.num_trials = 30
-    else:
-        block.num_trials = 20
+    block.num_trials = 20
 
     # change parameters
     block.amplitude = amplitude
@@ -34,4 +33,5 @@ for idx in range(len(conditions)):
     # subject name
     block.subject ='KDM'
 
+    # run block
     block.run()

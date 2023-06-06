@@ -1,5 +1,5 @@
 # Import necessary modules
-from psychopy import visual, logging
+from psychopy import visual, logging, core
 from psychopy.hardware import joystick
 from datetime import datetime
 from scipy.io import savemat
@@ -62,13 +62,7 @@ class Tracking:
             # initialize joystick
             joystick.backend = window_backend
             self.joystick = joystick.Joystick(0)
-
-        # Record stimulus and responses
-        self.stim_list = []
-        self.resp_list = []
-        self.all_stim_rw = []
-        self.all_stim_s = []
-
+        
         # Experiment parameters
         self.num_trials = 30
         self.frame_rate = 60
@@ -78,9 +72,24 @@ class Tracking:
         self.mean = 0
         self.sd = 3
 
-        # Condition info
-        self.time_stmp = datetime.now().strftime("%d_%m_%Y_%H_%M")
+        # Condition info             
         self.subject = None
+
+        return
+
+    def init(self):
+        # Initialize a block of experiment
+        
+        # Record stimulus and responses
+        self.stim_list = []
+        self.resp_list = []
+        self.all_stim_rw = []
+        self.all_stim_s = []
+
+        # Time stmp
+        self.time_stmp = datetime.now().strftime("%d_%m_%Y_%H_%M")
+
+        return
 
     def trial(self, ori):
         stim = []
@@ -183,4 +192,4 @@ class Tracking:
                 'amplitude':self.amplitude, 'period':self.period}
                 
         savemat(file_path, data)
-        print('Data saved to ' + file_path)
+        print('Data saved to ' + file_path)        
