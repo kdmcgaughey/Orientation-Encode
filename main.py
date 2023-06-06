@@ -1,15 +1,37 @@
 from experiment.tracking import *
+import random
 
-# 'dial' or 'joystick'
-block = Tracking(mode='joystick')
+# loop through the experimental blocks
+# define parameters of each block
+amplitude = [2, 4, 6]
+period = [30, 60, 120, 240]
 
-# s.d. [1, 2, 3, 4]
-block.sd = 3
+# create pairs of conditions and shuffle them
+conditions = []
+for idx in range(len(amplitude)):
+    for idy in range(len(period)):
+        conditions.append((amplitude[idx], period[idy]))
+random.shuffle(conditions)
+conditions.insert(0, (0, 60))
 
-# change parameters
-# block.amplitude = 10
+# loop through the conditions and run each block
+for idx in range(len(conditions)):
+    amplitude, period = conditions[idx]
+    
+    # 'dial' or 'joystick'
+    block = Tracking(mode='joystick')
 
-# subject name
-block.subject ='KDM'
+    # number of trials
+    if idx == 0:
+        block.num_trials = 30
+    else:
+        block.num_trials = 20
 
-block.run()
+    # change parameters
+    block.amplitude = amplitude
+    block.period = period
+
+    # subject name
+    block.subject ='KDM'
+
+    block.run()

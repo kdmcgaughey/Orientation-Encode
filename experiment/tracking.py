@@ -76,7 +76,7 @@ class Tracking:
 
         # Gaussian random walk parameters
         self.mean = 0
-        self.sd = 1
+        self.sd = 3
 
         # Condition info
         self.time_stmp = datetime.now().strftime("%d_%m_%Y_%H_%M")
