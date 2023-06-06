@@ -30,9 +30,11 @@ dat_resp(:,:,2) = resp;
 % Wrap stimulus
 
 dat_stim(:,:,:) = wrapTo360(dat_stim(:,:,:).*2);
+dat_stim = dat_stim./2;
 
 % Wrap response
 dat_resp(:,:,:) = wrapTo360(dat_resp(:,:,:).*2);
+dat_resp = dat_resp./2;
 
 % Take derivative 
 

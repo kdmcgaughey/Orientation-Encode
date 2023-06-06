@@ -12,7 +12,7 @@ cd(dataPath)
 
 % Load in .mat files for current subject
 
-subj = 'KDM';
+subj = 'LQZ';
 
 filePattern = strcat('*', subj,'*joystick.mat');
 files = dir(strcat(dataPath, filePattern));
@@ -164,7 +164,7 @@ initType = 'RND';   % Initialization type
 bPLOT = 0;          % Plot or not
 bPLOTrpt = 0;       % Plot or not
 
-for s = 5
+for s = 2:5 %1:num_cond
     
     [rFit,rParam,rLagFit] = xcorrFitMLE(resp_lags(s,1:tMaxLag),cross_cors(s,1:tMaxLag),cross_cors_std(s,1:tMaxLag),rStdK,modelType,initType,bPLOT,bPLOTrpt);
 
@@ -216,7 +216,7 @@ ylabel('Impulse response function width (s)')
 
 %%%%%%%%%%% Check Gaussian fits %%%%%%%%%%%
 
-for s = 1:num_cond
+for s = 2:5 %1:num_cond
 
     figure
 
