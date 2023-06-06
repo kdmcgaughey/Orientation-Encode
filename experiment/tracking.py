@@ -23,7 +23,10 @@ class Tracking:
         self.center = visual.GratingStim(self.win, sf=0.0, size=1, mask='raisedCos',
                                          maskParams={'fringeWidth':0.2}, contrast=0.0, autoDraw=True)
         self.fixation = visual.GratingStim(self.win, color=0.5, colorSpace='rgb',
-                                           tex=None, mask='raisedCos', size=0.4, autoDraw=True)
+                                           tex=None, mask='raisedCos', size=0.4, autoDraw=True)        
+        self.wait_text = visual.TextStim(self.win, 'Press Button to Continue', 
+                                         color=(0, 1, 0), colorSpace='rgb')
+
         # Create response probe
         self.prob = visual.Line(self.win, start=(0.0, -2), end=(0.0, 2), lineWidth=4.0,
                                 lineColor='black', size=1, contrast=0.80)
@@ -89,6 +92,13 @@ class Tracking:
         # Time stmp
         self.time_stmp = datetime.now().strftime("%d_%m_%Y_%H_%M")
 
+        # Wait for subject to start next trial
+        if self.mode == 'dial':            
+            self.kb_wait(draw_text=True)
+
+        if self.mode == 'joystick':
+            self.joy_wait(draw_text=True)
+
         return
 
     def trial(self, ori):
@@ -139,22 +149,26 @@ class Tracking:
         self.all_stim_s.append(stim_s)
         return
 
-    def kb_wait(self):
+    def kb_wait(self, draw_text=False):
         # setup callback
         self.resp_flag = True
 
         # wait for keyboard press
         while self.resp_flag:
+            if draw_text:
+                self.wait_text.draw()                
             self.win.flip()
         return
 
-    def joy_wait(self):
+    def joy_wait(self, draw_text=False):
         self.L2 = 4
         self.R2 = 5
 
         # wait for button press
         while not (self.joystick.getButton(self.L2) or \
                    self.joystick.getButton(self.R2)):
+            if draw_text:
+                self.wait_text.draw()
             self.win.flip()
         return
 
