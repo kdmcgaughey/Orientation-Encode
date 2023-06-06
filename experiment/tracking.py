@@ -156,7 +156,7 @@ class Tracking:
         # wait for keyboard press
         while self.resp_flag:
             if draw_text:
-                self.wait_text.draw()                
+                self.wait_text.draw()
             self.win.flip()
         return
 
