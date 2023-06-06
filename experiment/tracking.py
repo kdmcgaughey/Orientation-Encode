@@ -66,6 +66,8 @@ class Tracking:
         # Record stimulus and responses
         self.stim_list = []
         self.resp_list = []
+        self.all_stim_rw = []
+        self.all_stim_s = []
 
         # Experiment parameters
         self.num_trials = 30
@@ -83,6 +85,8 @@ class Tracking:
     def trial(self, ori):
         stim = []
         resp = []
+        stim_rw = []
+        stim_s = []
 
         freq = 1 / self.period
         # Present a single trial by frame
@@ -91,10 +95,12 @@ class Tracking:
             # Gaussian random walk
             noise_t = np.random.normal(self.mean, self.sd)
             ori += noise_t
+            stim_rw.append(ori)
 
             # Sinusoidal
             wave_t = self.amplitude * np.sin(t * freq * 2 * np.pi)           
             stim_ori = ori + wave_t
+            stim_s.append(wave_t)
 
             # set stimulus and probe orientation
             self.gabor.ori = stim_ori
@@ -120,6 +126,8 @@ class Tracking:
         # Add to all stimulus and response
         self.stim_list.append(stim)
         self.resp_list.append(resp)
+        self.all_stim_rw.append(stim_rw)
+        self.all_stim_s.append(stim_s)
         return
 
     def kb_wait(self):
@@ -164,10 +172,13 @@ class Tracking:
         # Save data
         self.stim_list = np.array(self.stim_list)
         self.resp_list = np.array(self.resp_list)
+        self.all_stim_rw = np.array(self.all_stim_rw)
+        self.all_stim_s = np.array(self.all_stim_s)
 
-        file_name = '%s_%s_SD_%d_%s.mat' % (self.time_stmp, self.subject, self.sd, self.mode)
+        file_name = '%s_%s.mat' % (self.time_stmp, self.subject)
         file_path = os.path.join('.', 'data', file_name)
         data = {'stim':self.stim_list, 'resp':self.resp_list, 
+                'rw':self.all_stim_rw, 'sin':self.all_stim_s,
                 'sd':self.sd, 'mode':self.mode, 'contrast':self.contrast,
                 'amplitude':self.amplitude, 'period':self.period}
                 
