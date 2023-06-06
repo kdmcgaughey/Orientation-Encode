@@ -16,8 +16,9 @@ class Tracking:
         logging.console.setLevel(logging.WARNING)
 
         # Create Gabor stimulus
+        self.contrast = 0.125
         self.gabor = visual.GratingStim(self.win, sf=0.75, size=4, phase=0.5, mask='raisedCos',
-                                        maskParams={'fringeWidth':0.25}, contrast=0.20)
+                                        maskParams={'fringeWidth':0.25}, contrast=self.contrast)
         # Create center fixation
         self.center = visual.GratingStim(self.win, sf=0.0, size=1, mask='raisedCos',
                                          maskParams={'fringeWidth':0.2}, contrast=0.0, autoDraw=True)
@@ -26,6 +27,10 @@ class Tracking:
         # Create response probe
         self.prob = visual.Line(self.win, start=(0.0, -2), end=(0.0, 2), lineWidth=4.0,
                                 lineColor='black', size=1, contrast=0.80)
+
+        # sin parameter
+        self.amplitude = 2
+        self.period = 120
 
         # Response probe
         self.prob_ornt = 0
@@ -79,6 +84,7 @@ class Tracking:
         stim = []
         resp = []
 
+        freq = 1 / self.period
         # Present a single trial by frame
         for t in range(self.trial_length):
 
@@ -87,7 +93,7 @@ class Tracking:
             ori += noise_t
 
             # Sinusoidal
-            wave_t = 0
+            wave_t = self.amplitude * np.sin(t * freq * 2 * np.pi)           
             stim_ori = ori + wave_t
 
             # set stimulus and probe orientation
@@ -162,6 +168,8 @@ class Tracking:
         file_name = '%s_%s_SD_%d_%s.mat' % (self.time_stmp, self.subject, self.sd, self.mode)
         file_path = os.path.join('.', 'data', file_name)
         data = {'stim':self.stim_list, 'resp':self.resp_list, 
-                'sd':self.sd, 'mode':self.mode}
+                'sd':self.sd, 'mode':self.mode, 'contrast':self.contrast,
+                'amplitude':self.amplitude, 'period':self.period}
+                
         savemat(file_path, data)
         print('Data saved to ' + file_path)

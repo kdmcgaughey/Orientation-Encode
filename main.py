@@ -4,9 +4,12 @@ from experiment.tracking import *
 block = Tracking(mode='joystick')
 
 # s.d. [1, 2, 3, 4]
-block.sd = 2
+block.sd = 3
+
+# change parameters
+# block.amplitude = 10
 
 # subject name
-block.subject ='LQZ'
+block.subject ='KDM'
 
 block.run()
