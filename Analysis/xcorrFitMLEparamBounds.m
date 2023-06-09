@@ -27,7 +27,7 @@ rLagValMax = max(rLagVal);
 LBa = 0;               UBa = 1;
 % LOWER & UPPER BOUND ON MAX
 LBm = 0.25.*rLagValMin; UBm = 0.25.*rLagValMax;
-%LBm = 0.25.*rLagValMin; UBm = 0.4.*rLagValMax;
+%LBm = 0.25.*rLagValMin; UBm = 0.75.*rLagValMax;
 LBmLog = .0001;
 
 % Change from UBm = 0.25.*rLagValMax (KDM)
@@ -40,7 +40,7 @@ LBd = 0;         UBd = 1;
 
 if strcmp(modelType,'GMA') || strcmp(modelType,'GM2')
 	LBs = 0.02.*rLagValMax;        UBs = 8.*rLagValMax;
-    LBm = 0.001.*rLagValMax;       UBm = 0.6.*rLagValMax;
+    LBm = 2* rLagValMin;       UBm = 0.6.*rLagValMax;
     LBa = 0;           UBa = 1.5;
     LBd = -1;          UBd = 1;
 end

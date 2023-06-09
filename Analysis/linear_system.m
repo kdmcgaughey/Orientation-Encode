@@ -15,21 +15,25 @@ for i = 1:100
 
     % Random walk:
 
-    stim_RW = normrnd(0, 5, [1,1500]);
-    stim_RW = cumsum(stim_RW);
-
-    all_stim_RW(i,:) = stim_RW;
+%     stim_RW = normrnd(0, 5, [1,1500]);
+%     stim_RW = cumsum(stim_RW);
+% 
+%     all_stim_RW(i,:) = stim_RW;
 
     % Sinusoid:
 
-    f = 0.5/60;
+    f = 1/120;
+    p = 120;
     a = 8;
     t = 1:1:1500;
-    y = a*sin(2*pi*f*t);
-
+    %y = a*sin(2*pi*f*t);
+    y = a*sin(mod(t,p)*(2*pi/p));
+    
     all_stim_SW(i,:) = y;
 
 end
+
+%%
 
 figure
 
@@ -94,13 +98,13 @@ end
 
 % Average cross correlation
 
-avg_xcorr = mean(all_r,1);
-avg_lag = mean(all_lags,1);
+avg_xcorr_5 = mean(all_r,1);
+avg_lag_5 = mean(all_lags,1);
 
 % Plot stuff
 
 figure
-plot(avg_lag/60,avg_xcorr)
+plot(avg_lag_5/60,avg_xcorr_5)
 xlim([0 1])
 
 

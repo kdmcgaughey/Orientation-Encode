@@ -12,7 +12,7 @@ function rFit = xcorrFitMLEfunc(rLagVal,rLagValLog,modelType,rParam,bPLOT)
 %                 xcorrFitMLEfunc([0:1000]./1000,log([0:1000]./1000),'GMA',[.04 .05 4 .05],1)
 %
 % rLagVal:      lag values           (e.g. time lag in secs)
-% rLagValLog:   lag values logged... enter to improve fitting speed 
+% rLagValLog:   lag values logged... enter to improve fitting speed
 % modelType:    type of  xcorr function
 %               'GSS' -> gaussian
 %               'LGS' -> log-gaussian
@@ -32,15 +32,16 @@ function rFit = xcorrFitMLEfunc(rLagVal,rLagValLog,modelType,rParam,bPLOT)
 % INPUT HANDLING
 if ~exist('bPLOT',     'var') || isempty(bPLOT)      bPLOT      =            0; end
 
-if strcmp(modelType,'GSS')
+switch modelType
+case 'GSS'
     % UNPACK PARAMETERS
     [a1,m1,s1,d1,a2,m2,s2,d2] = xcorrFitMLEparamUnpack(rParam,modelType);
     % FUNCTION
     rFit = a1.*exp(-0.5.*((rLagVal - m1)./s1).^2);
-elseif strcmp(modelType,'LGS')
+case 'LGS'
     % LOG LAGS (IF NECESSARY)
-    if ~exist('rLagValLog','var') || isempty(rLagValLog) 
-        rLagValLog = log(rLagVal); 
+    if ~exist('rLagValLog','var') || isempty(rLagValLog)
+        rLagValLog = log(rLagVal);
     end
     % UNPACK PARAMETERS
     [a1,m1,s1,d1,a2,m2,s2,d2] = xcorrFitMLEparamUnpack(rParam,modelType);
@@ -55,7 +56,7 @@ elseif strcmp(modelType,'LGS')
     % indNeg = find( (rLagVal-d1) <=0);
     % indPos = find( (rLagVal-d1) > 0);
     % rFit(indPos,1)  = a1.*exp(-0.5.*((log((rLagVal(indPos)-d1)) - log(m1))./s1).^2);
-elseif strcmp(modelType,'AGS')
+case 'AGS'
     % UNPACK PARAMETERS
     [a1,m1,s1,d1,a2,m2,s2,d2] = xcorrFitMLEparamUnpack(rParam,modelType);
     % INDICES   LESS  THAN MEAN
@@ -66,10 +67,10 @@ elseif strcmp(modelType,'AGS')
     rFit(ind1,1) = a1.*exp(-0.5.*((rLagVal(ind1) - m1)./s1).^2);
     % FUNCTION GREATER THAN MEAN
     rFit(ind2,1) = a1.*exp(-0.5.*((rLagVal(ind2) - m1)./s2).^2);
-elseif strcmp(modelType,'GLG')
+case 'GLG'
     % LOG LAGS (IF NECESSARY)
-    if ~exist('rLagValLog','var') || isempty(rLagValLog) 
-        rLagValLog = log(rLagVal); 
+    if ~exist('rLagValLog','var') || isempty(rLagValLog)
+        rLagValLog = log(rLagVal);
     end
     % UNPACK PARAMETERS
     [a1,m1,s1,d1,a2,m2,s2,d2] = xcorrFitMLEparamUnpack(rParam,modelType);
@@ -79,7 +80,7 @@ elseif strcmp(modelType,'GLG')
     rFunc2 = a2.*exp(-0.5.*((rLagValLog - log(m2))./s2).^2);
     % FUNCTION
     rFit = rFunc1 + rFunc2;
-elseif strcmp(modelType,'GS2')
+case 'GS2'
     % UNPACK PARAMETERS
     [a1,m1,s1,d1,a2,m2,s2,d2] = xcorrFitMLEparamUnpack(rParam,modelType);
     % FUNCTION 1
@@ -88,10 +89,10 @@ elseif strcmp(modelType,'GS2')
     rFunc2 = a2.*exp(-0.5.*((rLagVal - m2)./s2).^2);
     % FUNCTION
     rFit = rFunc1 + rFunc2;
-elseif strcmp(modelType,'LG2') 
+case 'LG2'
     % LOG LAGS (IF NECESSARY)
-    if ~exist('rLagValLog','var') || isempty(rLagValLog) 
-        rLagValLog = log(rLagVal); 
+    if ~exist('rLagValLog','var') || isempty(rLagValLog)
+        rLagValLog = log(rLagVal);
     end
     % UNPACK PARAMETERS
     [a1,m1,s1,d1,a2,m2,s2,d2] = xcorrFitMLEparamUnpack(rParam,modelType);
@@ -101,15 +102,18 @@ elseif strcmp(modelType,'LG2')
     rFunc2 = a2.*exp(-0.5.*((rLagValLog - log(m2))./s2).^2);
     % FUNCTION
     rFit   = rFunc1 + rFunc2;
-elseif strcmp(modelType,'GMA') 
+case 'GMA'
   	% UNPACK PARAMETERS
     [a1,m1,s1,d1,a2,m2,s2,d2] = xcorrFitMLEparamUnpack(rParam,modelType);
+
     % INDICTES OF NEGATIVE AND POSITIVE VALUES GIVEN DELAY
-    indNeg = find( (rLagVal-d1) <=0);
-    indPos = find( (rLagVal-d1) > 0);
+    indNeg = (rLagVal-d1) <=0;
+    indPos = (rLagVal-d1) > 0;
+
     % FUNCTION 1
-    rFit(indPos,1) =  a1.*( ( ((rLagVal(indPos)-d1).^(s1-1))./(m1.^s1) )./gamma(s1) ) .* exp(-(rLagVal(indPos)-d1)./m1) ;
-elseif strcmp(modelType,'GM2') 
+    rFit=zeros(size(indPos));
+    rFit(indPos) =  a1.*( ( ((rLagVal(indPos)-d1).^(s1-1))./(m1.^s1) )./gamma(s1) ) .* exp(-(rLagVal(indPos)-d1)./m1) ;
+case 'GM2'
   	% UNPACK PARAMETERS
     [a1,m1,s1,d1,a2,m2,s2,d2] = xcorrFitMLEparamUnpack(rParam,modelType);
     indPos = find( (rLagVal-d1) > 0);
@@ -119,19 +123,19 @@ elseif strcmp(modelType,'GM2')
     rFunc2(indPos,1) =  a2.*( ( ((rLagVal(indPos)-d2).^(s2-1))./(m2.^s2) )./gamma(s2) ) .* exp(-(rLagVal(indPos)-d2)./m2) ;%     % FUNCTION 2
     % FUNCTION
 	rFit   = rFunc1 + rFunc2;
-else
+otherwise
     error(['xcorrMLEfunc: unhandled modelType=' modelType]);
 end
 
 if bPLOT == 1
     figure; hold on
-    plot(rLagVal,rFit,'k'); 
+    plot(rLagVal,rFit,'k');
     try
     formatFigure('Lag','Correlation',[modelType ': [' num2str(a1,'%.2f') ' ' num2str(m1,'%.3f') ' ' num2str(s1,'%.2f') ' ' num2str(d1,'%.2f') ' ' num2str(a2,'%.2f') ' ' num2str(m2,'%.3f') ' ' num2str(s2,'%.2f') ' ' num2str(d2,'%.2f')   ']']);
 %     catch
 % 	formatFigure('Lag','Correlation',[modelType ': [' num2str(a1,'%.2f') ' ' num2str(m1,'%.3f') ' ' num2str(s1,'%.2f') ' ' num2str(d1,'%.2f') ' ' num2str(a2,'%.2f') ' ' num2str(m2,'%.3f') ' ' num2str(s2,'%.2f') ' ' num2str(d2,'%.2f')   ']']);
     end
-    axis square; 
+    axis square;
     xlim([-0.125 1.375]);
     ylim([-0.025 0.225])
     % GUIDE LINES

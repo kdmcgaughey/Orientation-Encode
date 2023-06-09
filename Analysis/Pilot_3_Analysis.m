@@ -5,7 +5,7 @@
 
 % Establish paths
 
-dataPath = '/Users/karamcgaughey/Documents/GoldLab/Orientation_Tracking/Behavior/Pilot_3/';
+dataPath = '/Users/karamcgaughey/Documents/GoldLab/Orientation_Tracking/Behavior/Pilot_4/';
 filePath = '/Users/karamcgaughey/Documents/GoldLab/Orientation_Tracking/Analysis/';
 
 cd(dataPath)
@@ -62,12 +62,12 @@ dat_resp_diff = diff(dat_resp(:,:,:),1,2);
 %%%%% IMPULSE RESPONSE FUNCTION %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Johannes impulse response function code
+% Johannes impulse response function codue
 % BurgeLabToolbox: xcorrEasy
 
 trim_vals = 59;                                 % Values to trim off beginning of each "trial"
 t = 1:1:size(dat_stim_diff,2) - trim_vals;      % Values at which time series are sampled
-tMaxLag = 120;                                  % Maximum lag (in units of smpVal)
+tMaxLag = 90;                                   % Maximum lag (in units of smpVal)
 bPLOT = 0;                                      % Plot or not
 bPLOTall = 0;                                   % Plot or not                  
 
@@ -90,9 +90,9 @@ end
 figure
 
 for s = 1:num_cond
-    plot(resp_lags(s,1:tMaxLag)/60,cross_cors(s,1:tMaxLag), 'LineWidth', 2.5)
+    plot(resp_lags(s,1:tMaxLag)/60,cross_cors(s,1:tMaxLag), 'LineWidth', 1.5)
     xticks([0, 0.5, 1, 1.5, 2])
-    legend('0.125', '0.025', '0.005')
+    legend('RW only', 'T = 30','T = 120')
     hold on;
 end
 
@@ -105,9 +105,9 @@ ylabel('Correlation value')
 figure
 
 for s = 1:num_cond
-    plot(smooth(resp_lags(s,1:tMaxLag),5)/60,smooth(cross_cors(s,1:tMaxLag),5), 'LineWidth', 2.5)
+    plot(smooth(resp_lags(s,1:tMaxLag),5)/60,smooth(cross_cors(s,1:tMaxLag),5), 'LineWidth', 1.5)
     xticks([0, 0.5, 1, 1.5, 2])
-    legend('0.125', '0.025', '0.005')
+    legend('RW only', 'T = 30', 'T = 120')
     hold on;
 end
 
@@ -125,15 +125,15 @@ ylabel('Correlation value')
 % Fitting impulse response function with Gaussian distribution
 % BurgeLabToolbox: xcorFitMLE
 
-rStdK = 1.5;        % Standard dev. of xcorr values at baseline
-modelType = 'LGS';  % Function to fit to xcorr
+rStdK = 1;        % Standard dev. of xcorr values at baseline
+modelType = 'GMA';  % Function to fit to xcorr
 initType = 'RND';   % Initialization type
 bPLOT = 0;          % Plot or not
 bPLOTrpt = 0;       % Plot or not
 
 for s = 1:num_cond
     
-    [rFit,rParam,rLagFit] = xcorrFitMLE(resp_lags(s,1:tMaxLag),cross_cors(s,1:tMaxLag),cross_cors_std(s,1:tMaxLag),rStdK,modelType,initType,bPLOT,bPLOTrpt);
+    [rFit,rParam,rLagFit] = xcorrFitMLE(resp_lags(s,1:tMaxLag)./600,cross_cors(s,1:tMaxLag),cross_cors_std(s,1:tMaxLag),rStdK,modelType,initType,bPLOT,bPLOTrpt);
 
     % Save values
     
@@ -178,18 +178,18 @@ figure
 subplot(1,3,1)
 
 plot(1:1:3, ISF_delay,'k--.', 'MarkerSize',20)
-xlim([min(sd_list)-0.5,max(sd_list)+0.5])
+xlim([min(sd_list)-1,max(sd_list)+1])
 xticks([sd_list(1) sd_list(2) sd_list(3)])
-xticklabels({'0.125','0.025','0.005'})
+xticklabels({'RW only','T = 30', 'T = 120'})
 xlabel('Target contrast') 
 ylabel('Time to peak correlation value (s)') 
 
 subplot(1,3,2)
 
 plot(1:1:3, ISF_peak,'k--.', 'MarkerSize',20)
-xlim([min(sd_list)-0.5,max(sd_list)+0.5])
+xlim([min(sd_list)-1,max(sd_list)+1])
 xticks([sd_list(1) sd_list(2) sd_list(3)])
-xticklabels({'0.125','0.025','0.005'})
+xticklabels({'RW only','T = 30','T = 120'})
 xlabel('Target contrast') 
 ylabel('Peak correlation value') 
 
@@ -197,9 +197,9 @@ ylabel('Peak correlation value')
 subplot(1,3,3)
 
 plot(1:1:3, ISF_width,'k--.', 'MarkerSize',20)
-xlim([min(sd_list)-0.5,max(sd_list)+0.5])
+xlim([min(sd_list)-1,max(sd_list)+1])
 xticks([sd_list(1) sd_list(2) sd_list(3)])
-xticklabels({'0.125','0.025','0.005'})
+xticklabels({'RW only','T = 30', 'T = 120'})
 xlabel('Target contrast') 
 ylabel('CCG width (s)') 
 
@@ -257,7 +257,7 @@ avg_err = abs(mean(avg_err_full,2));
 
 figure
 
-plot(1:1:3, avg_err,'k--.', 'MarkerSize',20)
+plot(1:1:4, avg_err,'k--.', 'MarkerSize',20)
 xlim([min(sd_list)-0.5,max(sd_list)+0.5])
 xticks([sd_list(1) sd_list(2) sd_list(3)])
 xticklabels({'0.125','0.025','0.005'})
