@@ -1,10 +1,10 @@
 
 % Make fake impulse response function with Gamma function (gammapdf)
 
-fake_IRF = gampdf(1:60,10,1.5);
+fake_IRF = gampdf(1:100,10,3);
 
 figure
-plot((1:60)/60,fake_IRF)
+plot((1:100)/100,fake_IRF)
 
 %%
 
@@ -39,7 +39,7 @@ figure
 
 plot(all_stim_RW(1,:))
 hold on;
-plot(all_stim_SW(1,:))
+% plot(all_stim_SW(1,:))
 
 
 % Combine
@@ -52,7 +52,6 @@ all_stim = all_stim_RW;
 % Pad IRF to center peak within the array
 
 IRF_pad = [zeros(1,32), fake_IRF];
-
 
 % Convolve IRF with signal
 
